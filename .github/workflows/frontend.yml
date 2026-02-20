@@ -5,15 +5,9 @@ on:
     branches: [ main ]
     paths: [ 'frontend/**', '.github/workflows/frontend.yml' ]
 
-env:
-  BUCKET: ${{ secrets.GCP_PROJECT_ID }}-frontend
-
 jobs:
-  ci-cd:
+  ci:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
     - uses: actions/checkout@v4
@@ -24,20 +18,59 @@ jobs:
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
-    - run: npm ci
-    - run: npm run lint
-    - run: npm run test -- --run --passWithNoTests
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+      working-directory: frontend
+
+    - name: Test
+      run: npm run test -- --passWithNoTests
+      working-directory: frontend
+
     - name: Build
       run: npm run build
+      working-directory: frontend
       env:
         VITE_API_URL: ${{ secrets.VITE_API_URL }}
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: frontend/dist/
+        retention-days: 1
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      BUCKET: ${{ secrets.GCP_PROJECT_ID }}-frontend
+
+    steps:
+    - name: Validate required secrets
+      run: |
+        [ -n "$GCP_PROJECT_ID" ] || { echo "GCP_PROJECT_ID secret is not configured"; exit 1; }
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Download build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-dist
+        path: dist/
+
     - name: Authenticate to GCP
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
 
     - name: Deploy to Cloud Storage
       run: gsutil -m rsync -r -d dist/ gs://${{ env.BUCKET }}
@@ -47,5 +80,4 @@ jobs:
       run: |
         gcloud compute url-maps invalidate-cdn-cache frontend-url-map \
           --path "/*" \
-          --global \
-          --async
+          --global
