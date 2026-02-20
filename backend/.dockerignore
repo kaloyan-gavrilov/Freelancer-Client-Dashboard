@@ -1,0 +1,23 @@
+# Dependencies — reinstalled inside the container; sending them in the build
+# context would massively slow uploads and pollute the image.
+node_modules
+
+# Compiled output — the builder stage regenerates this from source.
+dist
+
+# Local environment files — secrets must NEVER bake into an image layer.
+.env
+.env.*
+*.local
+
+# Development / editor artifacts
+.git
+.gitignore
+*.md
+coverage
+.nyc_output
+
+# Test configs & fixtures — not needed at runtime
+**/*.spec.ts
+**/*.test.ts
+test/

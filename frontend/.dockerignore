@@ -1,0 +1,22 @@
+# Dependencies — reinstalled inside the container
+node_modules
+
+# Compiled output — Vite regenerates this in the build stage
+dist
+
+# Local environment files — secrets must NEVER bake into an image layer
+.env
+.env.*
+*.local
+
+# Development / editor artifacts
+.git
+.gitignore
+*.md
+coverage
+
+# Test files — not needed to produce the static build
+**/*.spec.ts
+**/*.test.ts
+**/*.spec.tsx
+**/*.test.tsx
