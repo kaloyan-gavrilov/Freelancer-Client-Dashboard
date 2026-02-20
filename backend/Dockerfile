@@ -55,7 +55,7 @@ RUN npm install --omit=dev
 COPY --chown=node:node --from=builder /app/dist ./dist
 
 # Default port (overridable via PORT env var, matched in main.ts)
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=8080
+EXPOSE 8080
 
 CMD ["node", "dist/main"]
