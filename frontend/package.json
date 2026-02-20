@@ -14,7 +14,6 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@fcd/shared": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
