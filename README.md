@@ -100,6 +100,35 @@ See [docs/adr/](docs/adr/) for architectural decisions.
 
 ---
 
+## CI/CD
+
+GitHub Actions runs two separate pipelines defined in `.github/workflows/`.
+
+| Workflow | Trigger path filter | Stages |
+|---|---|---|
+| `backend.yml` | `backend/**`, `shared/**` | lint → test → build → docker push → Cloud Run deploy |
+| `frontend.yml` | `frontend/**`, `shared/**` | lint → test → build → GCS upload → CDN invalidation |
+
+Docker push and deploy jobs run only on direct pushes to `main`. Lint, test, and build run on both push and PR events. A failing lint or test step blocks all downstream jobs — no `continue-on-error` is set anywhere.
+
+See [docs/ci-cd-diagram.md](docs/ci-cd-diagram.md) for Mermaid flowcharts of both pipelines.
+
+### Required GitHub Secrets
+
+Configure the following secrets under **Settings → Secrets and variables → Actions** in the repository:
+
+| Secret | Description |
+|---|---|
+| `GCP_PROJECT_ID` | Google Cloud project ID (e.g. `my-project-123456`) |
+| `GCP_SA_KEY` | JSON key of a GCP service account with roles: Artifact Registry Writer, Cloud Run Admin, Storage Object Admin, Compute Load Balancer Admin |
+| `SUPABASE_URL` | Supabase project URL (e.g. `https://xxxx.supabase.co`) |
+| `SUPABASE_ANON_KEY` | Supabase anonymous/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key (backend only — keep confidential) |
+| `CLOUD_RUN_SERVICE_NAME` | Name of the Cloud Run service to deploy the backend to |
+| `GCS_BUCKET_NAME` | Name of the GCS bucket AND the URL map used for Cloud CDN |
+
+---
+
 ## Contributing
 
 1. Branch off `main` following the naming convention: `feature/<ticket-id>-<short-description>`
