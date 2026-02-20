@@ -1,17 +1,16 @@
-import { ProjectState } from "./ProjectState";
-import { ProjectStateMachine } from "./ProjectStateMachine";
+import { ProjectState } from "./states/ProjectState";
+import { PendingState } from "./states/PendingState";
+import { InvalidStateTransitionException } from "../exceptions/InvalidStateTransitionException";
 
 export class Project {
   private readonly id: string;
   private readonly clientId: string;
-  private budget: number;
   private state: ProjectState;
 
-  constructor(id: string, clientId: string, budget: number) {
+  constructor(id: string, clientId: string) {
     this.id = id;
     this.clientId = clientId;
-    this.budget = budget;
-    this.state = ProjectState.DRAFT;
+    this.state = new PendingState();
   }
 
   getState(): ProjectState {
@@ -19,7 +18,10 @@ export class Project {
   }
 
   transitionTo(newState: ProjectState): void {
-    ProjectStateMachine.assertTransition(this.state, newState);
+    if (!this.state.canTransitionTo(newState)) {
+      throw new InvalidStateTransitionException(this.state.name, newState.name);
+    }
+
     this.state = newState;
   }
 }
