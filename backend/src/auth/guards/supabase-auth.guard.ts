@@ -4,35 +4,27 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { SupabaseClientService } from '../../infrastructure/supabase/supabase.client';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { UserRole } from '../../domain/user/user-role.enum';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
-/**
- * SupabaseAuthGuard — Single Responsibility: JWT Authentication only.
- *
- * Design Pattern: Decorator Pattern (NestJS guard applied as a decorator on
- * route handlers or controllers to add authentication behaviour non-invasively).
- *
- * SRP: This guard only validates the incoming Bearer token via Supabase and
- * attaches the resolved user to the request. It never inspects or enforces
- * roles — that is the exclusive responsibility of RolesGuard.
- *
- * Flow:
- *  1. Extract the Bearer token from the Authorization header.
- *  2. Call supabase.auth.getUser(token) to validate the JWT.
- *  3. Fetch the user's application profile (id, email, role) from the DB.
- *  4. Attach the AuthenticatedUser object to request.user.
- *
- * @throws UnauthorizedException (401) when the token is absent, malformed,
- *   expired, or when no matching application user record exists.
- */
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
-  constructor(private readonly supabaseClientService: SupabaseClientService) {}
+  constructor(
+    private readonly supabaseClientService: SupabaseClientService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractBearerToken(request);
 

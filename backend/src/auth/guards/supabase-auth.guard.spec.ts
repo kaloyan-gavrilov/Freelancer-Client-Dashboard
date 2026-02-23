@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { SupabaseAuthGuard } from './supabase-auth.guard';
 import { SupabaseClientService } from '../../infrastructure/supabase/supabase.client';
 import { UserRole } from '../../domain/user/user-role.enum';
@@ -14,6 +15,8 @@ function buildMockContext(headers: Record<string, string> = {}): ExecutionContex
     switchToHttp: () => ({
       getRequest: () => request,
     }),
+    getHandler: () => ({}),
+    getClass: () => ({}),
   } as unknown as ExecutionContext;
 }
 
@@ -122,6 +125,8 @@ describe('SupabaseAuthGuard', () => {
     const request = { headers: { authorization: 'Bearer valid.jwt.token' }, user: undefined as unknown };
     const ctx = {
       switchToHttp: () => ({ getRequest: () => request }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
     } as unknown as ExecutionContext;
 
     const result = await guard.canActivate(ctx);
@@ -152,6 +157,8 @@ describe('SupabaseAuthGuard', () => {
     const request = { headers: { authorization: 'Bearer token' }, user: undefined as unknown };
     const ctx = {
       switchToHttp: () => ({ getRequest: () => request }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
     } as unknown as ExecutionContext;
 
     await guard.canActivate(ctx);
@@ -176,6 +183,8 @@ describe('SupabaseAuthGuard', () => {
     const request = { headers: { authorization: 'Bearer token' }, user: undefined as unknown };
     const ctx = {
       switchToHttp: () => ({ getRequest: () => request }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
     } as unknown as ExecutionContext;
 
     // Guard should return true regardless of the role value
