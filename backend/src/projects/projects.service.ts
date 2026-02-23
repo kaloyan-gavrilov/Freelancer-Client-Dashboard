@@ -79,10 +79,16 @@ export class ProjectsService {
       throw new ForbiddenException('You do not own this project');
     }
 
-    ProjectStateMachine.assertTransition(
-      this.mapStatusToState(project.status),
-      this.mapStatusToState(newStatus),
-    );
+    try {
+      ProjectStateMachine.assertTransition(
+        this.mapStatusToState(project.status),
+        this.mapStatusToState(newStatus),
+      );
+    } catch {
+      throw new ConflictException(
+        `Invalid status transition: ${project.status} → ${newStatus}`,
+      );
+    }
 
     return this.projectRepo.update(id, { status: newStatus });
   }
