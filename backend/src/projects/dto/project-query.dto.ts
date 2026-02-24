@@ -40,4 +40,9 @@ export class ProjectQueryDto {
   @IsOptional()
   @IsEnum(['DRAFT', 'OPEN', 'IN_PROGRESS', 'REVIEW', 'COMPLETED', 'CANCELLED', 'DISPUTED'] as const)
   status?: string;
+
+  @ApiPropertyOptional({ example: 'uuid-of-freelancer', description: 'Filter projects assigned to a specific freelancer' })
+  @IsOptional()
+  @IsString()
+  freelancerId?: string;
 }

@@ -37,18 +37,24 @@ export class ProjectsService {
   }
 
   async findAll(query: ProjectQueryDto): Promise<{ data: Project[]; total: number }> {
-    // For now, fetch all OPEN projects (public listing) and apply filters in-memory.
-    // A production implementation would push filters into the DB query.
-    let projects = await this.projectRepo.findByStatus('OPEN');
+    let projects: Project[];
+
+    if (query.freelancerId) {
+      projects = await this.projectRepo.findByFreelancerId(query.freelancerId);
+      if (query.status) {
+        projects = projects.filter((p) => p.status === query.status);
+      }
+    } else if (query.status) {
+      projects = await this.projectRepo.findByStatus(query.status as ProjectStatus);
+    } else {
+      projects = await this.projectRepo.findByStatus('OPEN');
+    }
 
     if (query.budgetMin !== undefined) {
       projects = projects.filter((p) => p.budgetMax >= query.budgetMin!);
     }
     if (query.budgetMax !== undefined) {
       projects = projects.filter((p) => p.budgetMin <= query.budgetMax!);
-    }
-    if (query.status) {
-      projects = await this.projectRepo.findByStatus(query.status as ProjectStatus);
     }
 
     const total = projects.length;

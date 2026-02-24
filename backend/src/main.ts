@@ -8,6 +8,12 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  // Allow cross-origin requests from the frontend dev server and production origin
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:5173', 'http://localhost:4173'],
+    credentials: true,
+  });
+
   // Global validation pipe — enforces class-validator DTOs on all endpoints
   app.useGlobalPipes(
     new ValidationPipe({

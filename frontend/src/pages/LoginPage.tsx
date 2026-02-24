@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Grainient from '@/components/Grainient';
+import TextType from '@/components/TextType';
 
 export function LoginPage(): React.ReactNode {
   const { login, user } = useAuth();
@@ -74,17 +75,31 @@ export function LoginPage(): React.ReactNode {
           gamma={1.05}
           zoom={0.75}
         />
-        {/* Overlay quote */}
+        {/* Overlay text */}
         <div className="absolute inset-0 z-10 flex flex-col justify-end p-12">
-          <blockquote className="max-w-xs space-y-3">
-            <p className="text-xl font-light leading-relaxed text-white/80">
-              &ldquo;The simplest tools are often the most powerful — clarity
-              in workflow leads to clarity in results.&rdquo;
+          <div className="max-w-xs space-y-4">
+            <p className="text-sm font-medium uppercase tracking-widest text-white/40">
+              Freelancer Dashboard
             </p>
-            <footer className="text-sm text-white/40">
-              — Designed for focused professionals
-            </footer>
-          </blockquote>
+            <TextType
+              text={[
+                'Find projects that match your skills.',
+                'Submit bids. Win contracts.',
+                'Track milestones. Get paid.',
+                'Your freelance career, organised.',
+              ]}
+              typingSpeed={60}
+              deletingSpeed={35}
+              pauseDuration={2200}
+              showCursor
+              cursorCharacter="_"
+              cursorBlinkDuration={0.6}
+              className="block text-2xl font-light leading-snug text-white/85 min-h-[4rem]"
+            />
+            <p className="text-sm text-white/35">
+              One platform. Clients, projects &amp; payments.
+            </p>
+          </div>
         </div>
       </div>
 
