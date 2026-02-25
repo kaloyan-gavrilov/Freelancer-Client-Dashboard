@@ -45,3 +45,34 @@ export function useSubmitBid(projectId: string) {
     },
   });
 }
+
+export function useBidsForProject(projectId: string, enabled = true) {
+  return useQuery<Bid[]>({
+    queryKey: ['bids', projectId],
+    queryFn: () => api.get<Bid[]>(`/projects/${projectId}/bids`),
+    enabled: !!projectId && enabled,
+  });
+}
+
+export function useAcceptBid(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<Bid, Error, { bidId: string }>({
+    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/accept`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
+      void queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    },
+  });
+}
+
+export function useRejectBid(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<Bid, Error, { bidId: string }>({
+    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/reject`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
+    },
+  });
+}

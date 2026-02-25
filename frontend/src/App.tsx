@@ -9,6 +9,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ClientDashboard } from './pages/ClientDashboard';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { BrowseProjectsPage } from './pages/freelancer/BrowseProjectsPage';
+import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { UserRole } from './types/auth';
 
 const queryClient = new QueryClient({
@@ -43,6 +44,9 @@ export default function App(): React.ReactNode {
 
             {/* Protected routes — require authentication */}
             <Route element={<ProtectedRoute />}>
+              {/* Shared routes — accessible to both roles */}
+              <Route path="/projects/:id" element={<ProjectDetailPage />} />
+
               {/* Client routes */}
               <Route element={<RoleRoute allowedRole={UserRole.CLIENT} />}>
                 <Route path="/client/dashboard" element={<ClientDashboard />} />
