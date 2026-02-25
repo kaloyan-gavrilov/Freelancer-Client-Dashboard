@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { createBid } from '@/services/bidsApi';
 import type { Bid, CreateBidPayload } from '@/types/domain';
 
 export function useMyBidForProject(projectId: string, freelancerId: string) {
@@ -33,8 +33,7 @@ export function useSubmitBid(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Bid, Error, CreateBidPayload>({
-    mutationFn: (payload) =>
-      api.post<Bid>(`/projects/${projectId}/bids`, payload),
+    mutationFn: (payload) => createBid(projectId, payload),
     onSuccess: () => {
       // Mark this project as bid-submitted in the local cache
       queryClient.setQueryData<string[]>(['submitted-bid-projects'], (prev = []) => {

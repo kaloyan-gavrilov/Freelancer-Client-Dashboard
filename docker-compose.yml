@@ -1,31 +1,6 @@
 services:
   # ---------------------------------------------------------------------------
-  # PostgreSQL database
-  # ---------------------------------------------------------------------------
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    # Credentials are injected from .env.local — no secrets hardcoded here.
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      # Named volume keeps data between `docker compose down` restarts.
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
-    healthcheck:
-      # pg_isready exits 0 once Postgres is ready to accept connections.
-      # Other services use `condition: service_healthy` to wait for this.
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # ---------------------------------------------------------------------------
-  # NestJS backend API
+  # Backend API server
   # ---------------------------------------------------------------------------
   backend:
     build:
@@ -35,16 +10,10 @@ services:
       # are intentionally excluded (see backend/Dockerfile for reasoning).
       target: production
     restart: unless-stopped
-    # All runtime config comes from .env.local; nothing is hardcoded here.
     env_file:
-      - .env.local
+      - ./backend/.env
     ports:
       - '3000:3000'
-    depends_on:
-      db:
-        # Only start backend after Postgres passes its healthcheck, preventing
-        # "connection refused" crashes during container startup ordering races.
-        condition: service_healthy
 
   # ---------------------------------------------------------------------------
   # React / Vite frontend (local dev + staging)
@@ -54,7 +23,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       # Target the serve stage (nginx) — the intermediate build stage with
-      # Node/npm is discarded.
+      # Node/npm is intentionally discarded.
       target: serve
     restart: unless-stopped
     ports:
@@ -62,6 +31,3 @@ services:
       - '5173:80'
     depends_on:
       - backend
-
-volumes:
-  postgres_data:
