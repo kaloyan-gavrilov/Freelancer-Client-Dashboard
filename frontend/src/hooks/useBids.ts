@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createBid } from '@/services/bidsApi';
+import { createBid, getBidsForProject, acceptBid, rejectBid } from '@/services/bidsApi';
 import type { Bid, CreateBidPayload } from '@/types/domain';
 
 export function useMyBidForProject(projectId: string, freelancerId: string) {
@@ -48,7 +48,7 @@ export function useSubmitBid(projectId: string) {
 export function useBidsForProject(projectId: string, enabled = true) {
   return useQuery<Bid[]>({
     queryKey: ['bids', projectId],
-    queryFn: () => api.get<Bid[]>(`/projects/${projectId}/bids`),
+    queryFn: () => getBidsForProject(projectId),
     enabled: !!projectId && enabled,
   });
 }
@@ -57,7 +57,7 @@ export function useAcceptBid(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Bid, Error, { bidId: string }>({
-    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/accept`),
+    mutationFn: ({ bidId }) => acceptBid(bidId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
       void queryClient.invalidateQueries({ queryKey: ['project', projectId] });
@@ -69,7 +69,7 @@ export function useRejectBid(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Bid, Error, { bidId: string }>({
-    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/reject`),
+    mutationFn: ({ bidId }) => rejectBid(bidId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
     },

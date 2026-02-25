@@ -12,6 +12,15 @@ export default [
   },
   js.configs.recommended,
   {
+    // tailwind.config.js uses require() — it runs in Node.js
+    files: ['tailwind.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
@@ -39,6 +48,11 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': 'warn',
       'react/react-in-jsx-scope': 'off',
+      // TypeScript's compiler catches undefined variables more accurately than
+      // ESLint's no-undef; disabling avoids false positives on React.* types.
+      'no-undef': 'off',
+      // shadcn/ui generates empty interface extensions intentionally.
+      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
 ];
