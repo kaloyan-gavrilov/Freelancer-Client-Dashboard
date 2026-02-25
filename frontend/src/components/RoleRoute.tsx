@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
+import { LoadingScreen } from './LoadingScreen';
 
 interface RoleRouteProps {
   allowedRole: UserRole;
@@ -17,7 +18,7 @@ export function RoleRoute({ allowedRole }: RoleRouteProps): React.ReactNode {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!user) {

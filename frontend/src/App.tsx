@@ -12,6 +12,7 @@ import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardP
 import { BrowseProjectsPage } from './pages/freelancer/BrowseProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { DashboardLayout } from './components/layout/DashboardLayout';
+import { LoadingScreen } from './components/LoadingScreen';
 import { UserRole } from './types/auth';
 
 const queryClient = new QueryClient({
@@ -36,7 +37,7 @@ function UnauthorizedHandler(): null {
 function RootRedirect(): React.ReactNode {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
 
   return user.role === UserRole.CLIENT

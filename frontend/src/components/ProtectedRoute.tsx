@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { LoadingScreen } from './LoadingScreen';
 
 /**
  * Wraps routes that require an authenticated session.
@@ -10,7 +11,7 @@ export function ProtectedRoute(): React.ReactNode {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!session) {
