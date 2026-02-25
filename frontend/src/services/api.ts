@@ -36,8 +36,8 @@ httpClient.interceptors.response.use(
   (error: unknown) => {
     if (error instanceof AxiosError) {
       if (error.response?.status === 401) {
-        window.location.href = '/login';
-        return Promise.reject(new Error('Session expired. Redirecting to login.'));
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        return Promise.reject(new Error('Session expired. Please log in again.'));
       }
       const serverMessage = (
         error.response?.data as { message?: string } | undefined

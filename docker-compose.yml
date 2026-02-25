@@ -6,6 +6,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      # Target the production stage — devDependencies and TypeScript source
+      # are intentionally excluded (see backend/Dockerfile for reasoning).
       target: production
     restart: unless-stopped
     env_file:
@@ -20,6 +22,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # Target the serve stage (nginx) — the intermediate build stage with
+      # Node/npm is intentionally discarded.
       target: serve
     restart: unless-stopped
     ports:

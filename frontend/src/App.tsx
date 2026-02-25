@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -20,6 +21,16 @@ const queryClient = new QueryClient({
   },
 });
 
+function UnauthorizedHandler(): null {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = () => void navigate('/login', { replace: true });
+    window.addEventListener('auth:unauthorized', handler);
+    return () => window.removeEventListener('auth:unauthorized', handler);
+  }, [navigate]);
+  return null;
+}
+
 function RootRedirect(): React.ReactNode {
   const { user, loading } = useAuth();
 
@@ -36,6 +47,7 @@ export default function App(): React.ReactNode {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <UnauthorizedHandler />
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
