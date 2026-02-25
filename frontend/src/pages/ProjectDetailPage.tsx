@@ -336,7 +336,12 @@ export function ProjectDetailPage(): React.ReactElement {
               Milestones
             </h2>
             <ProjectMilestones projectId={project.id} />
-            {isClientOwner && <CreateMilestoneForm projectId={project.id} />}
+            {isClientOwner && (
+              <CreateMilestoneForm
+                projectId={project.id}
+                nextOrder={Array.isArray((project as any).milestones) ? (project as any).milestones.length + 1 : 1}
+              />
+            )}
           </div>
         )}
 
