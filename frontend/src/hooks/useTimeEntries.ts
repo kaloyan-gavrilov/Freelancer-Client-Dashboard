@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { getTimeEntries, createTimeEntry } from '@/services/timeEntriesApi';
 import type { TimeEntry, CreateTimeEntryPayload } from '@/types/domain';
 
 export function useTimeEntries(projectId: string) {
   return useQuery<TimeEntry[]>({
     queryKey: ['time-entries', projectId],
-    queryFn: () => api.get<TimeEntry[]>(`/projects/${projectId}/time-entries`),
+    queryFn: () => getTimeEntries(projectId),
     enabled: !!projectId,
   });
 }
@@ -14,8 +14,7 @@ export function useLogTime(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<TimeEntry, Error, CreateTimeEntryPayload>({
-    mutationFn: (payload) =>
-      api.post<TimeEntry>(`/projects/${projectId}/time-entries`, payload),
+    mutationFn: (payload) => createTimeEntry(projectId, payload),
     onMutate: async (newEntry) => {
       await queryClient.cancelQueries({ queryKey: ['time-entries', projectId] });
       const previous = queryClient.getQueryData<TimeEntry[]>(['time-entries', projectId]);

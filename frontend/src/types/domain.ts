@@ -1,96 +1,46 @@
-export type ProjectStatus =
-  | 'DRAFT'
-  | 'OPEN'
-  | 'IN_PROGRESS'
-  | 'REVIEW'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'DISPUTED';
+// Re-export barrel — canonical types now live in per-domain files.
+// All existing imports from '@/types/domain' continue to work unchanged.
 
-export type ProjectType = 'FIXED' | 'HOURLY';
+export type {
+  ProjectStatus,
+  ProjectType,
+  Project,
+  CreateProjectDTO,
+  UpdateProjectStatusDTO,
+  ProjectQuery,
+  PaginatedResponse,
+} from './project';
 
-export interface Project {
-  id: string;
-  clientId: string;
-  freelancerId: string | null;
-  title: string;
-  description: string;
-  budgetMin: number;
-  budgetMax: number;
-  deadline: string;
-  status: ProjectStatus;
-  projectType: ProjectType;
-  agreedRate: number | null;
-  skills?: string[];
-  bidCount?: number;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  BidStatus,
+  BidRankBy,
+  Bid,
+  CreateBidDTO,
+} from './bid';
 
-export interface ProjectsResponse {
-  data: Project[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export type {
+  MilestoneStatus,
+  Milestone,
+  CreateMilestoneDTO,
+  UpdateMilestoneDTO,
+} from './milestone';
 
-export type BidStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+export type { TimeEntry, CreateTimeEntryDTO } from './timeEntry';
 
-export interface Bid {
-  id: string;
-  projectId: string;
-  freelancerId: string;
-  proposedRate: number;
-  estimatedDurationDays: number;
-  coverLetter: string;
-  status: BidStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+// ---- Legacy aliases — kept for backward compatibility with existing hooks/components ----
 
-export type MilestoneStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+import type { PaginatedResponse, Project, ProjectQuery } from './project';
+import type { CreateBidDTO } from './bid';
+import type { CreateTimeEntryDTO } from './timeEntry';
 
-export interface Milestone {
-  id: string;
-  projectId: string;
-  title: string;
-  description: string | null;
-  amount: number;
-  order: number;
-  status: MilestoneStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+/** @deprecated Use ProjectQuery from '@/types/project' */
+export type ProjectFilters = ProjectQuery;
 
-export interface TimeEntry {
-  id: string;
-  projectId: string;
-  freelancerId: string;
-  milestoneId: string | null;
-  hours: number;
-  description: string;
-  date: string;
-  createdAt: string;
-  updatedAt: string;
-}
+/** @deprecated Use PaginatedResponse<Project> from '@/types/project' */
+export type ProjectsResponse = PaginatedResponse<Project>;
 
-export interface CreateBidPayload {
-  proposedRate: number;
-  estimatedDurationDays: number;
-  coverLetter: string;
-}
+/** @deprecated Use CreateBidDTO from '@/types/bid' */
+export type CreateBidPayload = CreateBidDTO;
 
-export interface CreateTimeEntryPayload {
-  hours: number;
-  description: string;
-  date: string;
-  milestoneId?: string;
-}
-
-export interface ProjectFilters {
-  skills?: string;
-  budgetMin?: number;
-  budgetMax?: number;
-  page?: number;
-  limit?: number;
-}
+/** @deprecated Use CreateTimeEntryDTO from '@/types/timeEntry' */
+export type CreateTimeEntryPayload = CreateTimeEntryDTO;

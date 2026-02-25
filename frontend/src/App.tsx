@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -9,6 +10,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ClientDashboard } from './pages/ClientDashboard';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { BrowseProjectsPage } from './pages/freelancer/BrowseProjectsPage';
+import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { UserRole } from './types/auth';
 
 const queryClient = new QueryClient({
@@ -19,6 +21,16 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function UnauthorizedHandler(): null {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = () => void navigate('/login', { replace: true });
+    window.addEventListener('auth:unauthorized', handler);
+    return () => window.removeEventListener('auth:unauthorized', handler);
+  }, [navigate]);
+  return null;
+}
 
 function RootRedirect(): React.ReactNode {
   const { user, loading } = useAuth();
@@ -36,6 +48,7 @@ export default function App(): React.ReactNode {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <UnauthorizedHandler />
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -43,6 +56,9 @@ export default function App(): React.ReactNode {
 
             {/* Protected routes — require authentication */}
             <Route element={<ProtectedRoute />}>
+              {/* Shared routes — accessible to both roles */}
+              <Route path="/projects/:id" element={<ProjectDetailPage />} />
+
               {/* Client routes */}
               <Route element={<RoleRoute allowedRole={UserRole.CLIENT} />}>
                 <Route path="/client/dashboard" element={<ClientDashboard />} />

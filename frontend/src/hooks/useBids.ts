@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { createBid } from '@/services/bidsApi';
 import type { Bid, CreateBidPayload } from '@/types/domain';
 
 export function useMyBidForProject(projectId: string, freelancerId: string) {
@@ -33,8 +33,7 @@ export function useSubmitBid(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Bid, Error, CreateBidPayload>({
-    mutationFn: (payload) =>
-      api.post<Bid>(`/projects/${projectId}/bids`, payload),
+    mutationFn: (payload) => createBid(projectId, payload),
     onSuccess: () => {
       // Mark this project as bid-submitted in the local cache
       queryClient.setQueryData<string[]>(['submitted-bid-projects'], (prev = []) => {
@@ -42,6 +41,37 @@ export function useSubmitBid(projectId: string) {
         return [...prev, projectId];
       });
       void queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+}
+
+export function useBidsForProject(projectId: string, enabled = true) {
+  return useQuery<Bid[]>({
+    queryKey: ['bids', projectId],
+    queryFn: () => api.get<Bid[]>(`/projects/${projectId}/bids`),
+    enabled: !!projectId && enabled,
+  });
+}
+
+export function useAcceptBid(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<Bid, Error, { bidId: string }>({
+    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/accept`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
+      void queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    },
+  });
+}
+
+export function useRejectBid(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<Bid, Error, { bidId: string }>({
+    mutationFn: ({ bidId }) => api.patch<Bid>(`/bids/${bidId}/reject`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['bids', projectId] });
     },
   });
 }
