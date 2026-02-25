@@ -57,9 +57,12 @@ export function DashboardLayout(): React.ReactElement {
   const pageTitle = PAGE_TITLES[pathname] ?? 'Dashboard';
 
   async function handleLogout(): Promise<void> {
-    await logout();
-    queryClient.clear();
-    navigate('/login', { replace: true });
+    try {
+      await logout();
+      queryClient.clear();
+    } finally {
+      navigate('/login', { replace: true });
+    }
   }
 
   function closeMobile(): void {

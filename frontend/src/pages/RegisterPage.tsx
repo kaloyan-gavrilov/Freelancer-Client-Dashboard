@@ -5,7 +5,7 @@ import { UserRole, type RegisterFormData } from '../types/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Eye, EyeOff, AlertCircle, MailCheck } from 'lucide-react';
+import { Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { BriefcaseIcon, type BriefcaseIconHandle } from '@/components/icons/BriefcaseIcon';
 import { UsersIcon, type UsersIconHandle } from '@/components/icons/UsersIcon';
 import Grainient from '@/components/Grainient';
@@ -25,7 +25,6 @@ export function RegisterPage(): React.ReactNode {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [registered, setRegistered] = useState<string | null>(null);
   const briefcaseRef = useRef<BriefcaseIconHandle>(null);
   const usersRef = useRef<UsersIconHandle>(null);
 
@@ -68,7 +67,8 @@ export function RegisterPage(): React.ReactNode {
       return;
     }
 
-    setRegistered(formData.email);
+    const dest = formData.role === UserRole.CLIENT ? '/client/dashboard' : '/freelancer/dashboard';
+    navigate(dest, { replace: true });
   }
 
   return (
@@ -111,41 +111,6 @@ export function RegisterPage(): React.ReactNode {
       <div className="flex flex-1 flex-col bg-background overflow-y-auto">
         <div className="flex flex-1 items-center justify-center px-6 py-8 sm:px-12">
           <div className="w-full max-w-[420px]">
-            {registered ? (
-              <div className="flex flex-col items-center text-center gap-5">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                  <MailCheck className="h-8 w-8 text-primary" />
-                </div>
-                <div className="space-y-2">
-                  <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                    Check your inbox
-                  </h1>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    We sent a confirmation link to{' '}
-                    <span className="font-medium text-foreground">{registered}</span>.
-                    <br />
-                    Click the link in that email to verify your address, then come back to sign in.
-                  </p>
-                </div>
-                <Link
-                  to="/login"
-                  className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors"
-                >
-                  Go to sign in
-                </Link>
-                <p className="text-xs text-muted-foreground">
-                  Didn&apos;t receive it? Check your spam folder or{' '}
-                  <button
-                    type="button"
-                    onClick={() => setRegistered(null)}
-                    className="font-medium text-primary hover:underline underline-offset-4"
-                  >
-                    try again
-                  </button>
-                  .
-                </p>
-              </div>
-            ) : (
             <>
             {/* Header */}
             <div className="mb-6">
@@ -353,7 +318,6 @@ export function RegisterPage(): React.ReactNode {
               </Link>
             </p>
             </>
-            )}
           </div>
         </div>
       </div>

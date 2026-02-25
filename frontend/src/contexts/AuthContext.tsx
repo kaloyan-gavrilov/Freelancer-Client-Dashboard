@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactNode {
 
   const register = useCallback(
     async (data: RegisterFormData): Promise<{ error: AuthError | null }> => {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -109,6 +109,24 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactNode {
           },
         },
       });
+
+      // When email confirmation is disabled, signUp returns a session immediately.
+      // Eagerly update state so navigation to a protected route works right away.
+      if (!error && authData.session) {
+        let profile = await fetchUserProfile(authData.session.user.id);
+        if (!profile) {
+          // DB trigger may not have run yet; build profile from sign-up data
+          profile = {
+            id: authData.session.user.id,
+            email: data.email,
+            role: data.role as UserRole,
+            firstName: data.firstName,
+            lastName: data.lastName,
+          };
+        }
+        setState({ user: profile, session: authData.session, loading: false });
+      }
+
       return { error };
     },
     [],
