@@ -354,9 +354,11 @@ export function ProjectDetailPage(): React.ReactElement {
               Time Log
             </h2>
             <TimeEntryList projectId={project.id} />
-            {isFreelancer && project.status === 'IN_PROGRESS' && (
-              <LogTimeToggle projectId={project.id} />
-            )}
+            {isFreelancer &&
+              project.status === 'IN_PROGRESS' &&
+              project.freelancerId === user?.id && (
+                <LogTimeToggle projectId={project.id} />
+              )}
           </div>
         )}
       </div>
