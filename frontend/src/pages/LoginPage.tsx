@@ -38,7 +38,7 @@ export function LoginPage(): React.ReactNode {
     }
 
     setSubmitting(true);
-    const { error: authError } = await login(formData);
+    const { error: authError, data } = await login(formData) as { error: any; data?: { session?: { user?: { id: string } } } };
     setSubmitting(false);
 
     if (authError) {
@@ -50,7 +50,10 @@ export function LoginPage(): React.ReactNode {
       return;
     }
 
-    navigate('/', { replace: true });
+    // Only navigate once sign-in returned a session (AuthContext already set state)
+    if (data?.session?.user) {
+      navigate('/', { replace: true });
+    }
   }
 
   return (

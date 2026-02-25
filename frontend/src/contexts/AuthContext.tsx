@@ -17,7 +17,7 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (data: LoginFormData) => Promise<{ error: AuthError | null }>;
+  login: (data: LoginFormData) => Promise<{ error: AuthError | null; data?: { session: Session | null } }>;
   register: (data: RegisterFormData) => Promise<{ error: AuthError | null }>;
   logout: () => Promise<void>;
 }
@@ -86,12 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactNode {
   }, []);
 
   const login = useCallback(
-    async (data: LoginFormData): Promise<{ error: AuthError | null }> => {
-      const { error } = await supabase.auth.signInWithPassword({
+    async (data: LoginFormData): Promise<{ error: AuthError | null; data?: { session: Session | null } }> => {
+      const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
-      return { error };
+
+      const { data: authData, error } = response as { data: { session: Session | null } | null; error: AuthError | null };
+
+      if (authData?.session?.user) {
+        const profile = await fetchUserProfile(authData.session.user.id);
+        setState({ user: profile, session: authData.session, loading: false });
+      }
+
+      return { error, data: authData ?? undefined };
     },
     [],
   );
