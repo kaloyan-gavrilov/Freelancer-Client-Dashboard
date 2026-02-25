@@ -76,7 +76,10 @@ function getVisibleTabs(project: Project): TabId[] {
     tabs.push('milestones');
   }
 
-  if (project.projectType === 'HOURLY' && project.status === 'IN_PROGRESS') {
+  if (
+    project.projectType === 'HOURLY' &&
+    ['IN_PROGRESS', 'REVIEW', 'COMPLETED'].includes(project.status)
+  ) {
     tabs.push('timelog');
   }
 
