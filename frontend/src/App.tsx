@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleRoute } from './components/RoleRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ClientDashboard } from './pages/ClientDashboard';
+import CreateProjectForm from './components/project/CreateProjectForm';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { BrowseProjectsPage } from './pages/freelancer/BrowseProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
@@ -26,11 +27,16 @@ const queryClient = new QueryClient({
 
 function UnauthorizedHandler(): null {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   useEffect(() => {
-    const handler = () => void navigate('/login', { replace: true });
+    const handler = () => {
+      toast.error('Session expired. Please log in again.');
+      void logout();
+      navigate('/login', { replace: true });
+    };
     window.addEventListener('auth:unauthorized', handler);
     return () => window.removeEventListener('auth:unauthorized', handler);
-  }, [navigate]);
+  }, [navigate, logout]);
   return null;
 }
 
@@ -65,6 +71,7 @@ export default function App(): React.ReactNode {
               <Route element={<RoleRoute allowedRole={UserRole.CLIENT} />}>
                 <Route element={<DashboardLayout />}>
                   <Route path="/client/dashboard" element={<ClientDashboard />} />
+                  <Route path="/client/projects/create" element={<CreateProjectForm />} />
                 </Route>
               </Route>
 

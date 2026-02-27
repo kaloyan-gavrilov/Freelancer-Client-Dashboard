@@ -1,13 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import type { Project, ProjectsResponse, ProjectFilters, UpdateProjectStatusDTO } from '@/types/domain';
-import { getProjects, getProjectById } from '@/services/projectsApi';
+import { httpClient } from '@/services/api';
+import type { Project, ProjectsResponse, ProjectFilters, UpdateProjectStatusDTO, CreateProjectDTO } from '@/types/domain';
+import { getProjects, getProjectById, createProject } from '@/services/projectsApi';
 import { updateMilestone } from '@/services/milestonesApi';
 
 export function useProjects(filters: ProjectFilters) {
   return useQuery<ProjectsResponse>({
     queryKey: ['projects', filters],
     queryFn: () => getProjects({ ...filters, status: 'OPEN' }),
+  });
+}
+
+export function useClientProjects(clientId: string) {
+  return useQuery<ProjectsResponse>({
+    queryKey: ['client-projects', clientId],
+    queryFn: () => getProjects({ clientId }),
+    enabled: !!clientId,
+  });
+}
+
+export function useCreateProject() {
+  const queryClient = useQueryClient();
+  return useMutation<Project, Error, CreateProjectDTO>({
+    mutationFn: (dto) => createProject({ ...dto, initialStatus: 'OPEN' }),
+    onSuccess: (_data, _vars, _ctx) => {
+      void queryClient.invalidateQueries({ queryKey: ['client-projects'] });
+    },
   });
 }
 
@@ -43,7 +61,7 @@ export function useUpdateProjectStatus(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<Project, Error, UpdateProjectStatusDTO>({
-    mutationFn: async (dto) => (await api.patch<Project>(`/projects/${projectId}/status`, dto)).data,
+    mutationFn: async (dto) => (await httpClient.patch<Project>(`/projects/${projectId}/status`, dto)).data,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       void queryClient.invalidateQueries({ queryKey: ['projects'] });

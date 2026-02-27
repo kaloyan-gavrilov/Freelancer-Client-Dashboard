@@ -45,4 +45,9 @@ export class CreateProjectDto {
   @IsArray()
   @IsString({ each: true })
   requiredSkills?: string[];
+
+  @ApiPropertyOptional({ enum: ['DRAFT', 'OPEN'], default: 'DRAFT' })
+  @IsOptional()
+  @IsEnum(['DRAFT', 'OPEN'] as const)
+  initialStatus?: 'DRAFT' | 'OPEN';
 }

@@ -45,4 +45,9 @@ export class ProjectQueryDto {
   @IsOptional()
   @IsString()
   freelancerId?: string;
+
+  @ApiPropertyOptional({ example: 'uuid-of-client', description: 'Filter projects owned by a specific client' })
+  @IsOptional()
+  @IsString()
+  clientId?: string;
 }

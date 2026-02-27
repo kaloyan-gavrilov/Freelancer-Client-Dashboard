@@ -35,6 +35,7 @@ export interface CreateProjectDTO {
   deadline: string;
   projectType: ProjectType;
   requiredSkills?: string[];
+  initialStatus?: 'DRAFT' | 'OPEN';
 }
 
 export interface UpdateProjectStatusDTO {
@@ -49,6 +50,7 @@ export interface ProjectQuery {
   budgetMax?: number;
   status?: ProjectStatus;
   freelancerId?: string;
+  clientId?: string;
 }
 
 export interface PaginatedResponse<T> {

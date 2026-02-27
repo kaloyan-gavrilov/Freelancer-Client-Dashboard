@@ -30,7 +30,7 @@ export class ProjectsService {
       budgetMin: dto.budgetMin,
       budgetMax: dto.budgetMax,
       deadline: new Date(dto.deadline),
-      status: 'DRAFT',
+      status: dto.initialStatus ?? 'DRAFT',
       projectType: dto.projectType,
       agreedRate: null,
     });
@@ -39,7 +39,12 @@ export class ProjectsService {
   async findAll(query: ProjectQueryDto): Promise<{ data: Project[]; total: number }> {
     let projects: Project[];
 
-    if (query.freelancerId) {
+    if (query.clientId) {
+      projects = await this.projectRepo.findByClientId(query.clientId);
+      if (query.status) {
+        projects = projects.filter((p) => p.status === query.status);
+      }
+    } else if (query.freelancerId) {
       projects = await this.projectRepo.findByFreelancerId(query.freelancerId);
       if (query.status) {
         projects = projects.filter((p) => p.status === query.status);
