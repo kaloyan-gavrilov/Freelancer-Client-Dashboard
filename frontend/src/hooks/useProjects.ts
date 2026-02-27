@@ -50,7 +50,7 @@ export function useMilestoneReadyMutation() {
 
   return useMutation({
     mutationFn: ({ milestoneId }: { milestoneId: string; projectId: string }) =>
-      updateMilestone(milestoneId, { status: 'COMPLETED' }),
+      updateMilestone(milestoneId, { status: 'SUBMITTED' }),
     onSuccess: (_data, { projectId }) => {
       void queryClient.invalidateQueries({ queryKey: ['milestones', projectId] });
     },

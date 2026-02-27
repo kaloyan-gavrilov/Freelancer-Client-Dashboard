@@ -73,6 +73,10 @@ export class BidsService {
       : bids;
   }
 
+  async findByFreelancer(freelancerId: string): Promise<Bid[]> {
+    return this.bidRepo.findByFreelancerId(freelancerId);
+  }
+
   async accept(bidId: string, clientId: string): Promise<Bid> {
     const bid = await this.findBidOrFail(bidId);
     await this.assertClientOwnsProject(bid.projectId, clientId);

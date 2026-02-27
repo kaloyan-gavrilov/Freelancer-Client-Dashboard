@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ProjectMilestones } from '@/components/freelancer/ProjectMilestones';
-import { LogTimeToggle } from '@/components/freelancer/LogTimeForm';
 import { BidList } from '@/components/bids/BidList';
 import { BidForm } from '@/components/project/BidForm';
-import { CreateMilestoneForm } from '@/components/project/CreateMilestoneForm';
-import { TimeEntryList } from '@/components/project/TimeEntryList';
+import { MilestoneList } from '@/components/milestones/MilestoneList';
+import { CreateMilestoneForm } from '@/components/milestones/CreateMilestoneForm';
+import { TimeEntryList } from '@/components/time/TimeEntryList';
+import { TimeEntryForm } from '@/components/time/TimeEntryForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject, useUpdateProjectStatus } from '@/hooks/useProjects';
 import { UserRole } from '@/types/auth';
@@ -337,13 +337,8 @@ export function ProjectDetailPage(): React.ReactElement {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Milestones
             </h2>
-            <ProjectMilestones projectId={project.id} />
-            {isClientOwner && (
-              <CreateMilestoneForm
-                projectId={project.id}
-                nextOrder={Array.isArray((project as any).milestones) ? (project as any).milestones.length + 1 : 1}
-              />
-            )}
+            <MilestoneList projectId={project.id} userRole={user?.role} />
+            {isClientOwner && <CreateMilestoneForm projectId={project.id} />}
           </div>
         )}
 
@@ -353,11 +348,11 @@ export function ProjectDetailPage(): React.ReactElement {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Time Log
             </h2>
-            <TimeEntryList projectId={project.id} />
+            <TimeEntryList projectId={project.id} agreedRate={project.agreedRate} />
             {isFreelancer &&
               project.status === 'IN_PROGRESS' &&
               project.freelancerId === user?.id && (
-                <LogTimeToggle projectId={project.id} />
+                <TimeEntryForm projectId={project.id} />
               )}
           </div>
         )}
