@@ -4,8 +4,6 @@ A full-stack platform for managing the complete lifecycle of freelance engagemen
 
 **Team:** Zlaten Vek
 
-[![Build & Push Docker Images](https://github.com/Mark-Lch22/Freelancer-Client-Dashboard/actions/workflows/docker.yml/badge.svg)](https://github.com/Mark-Lch22/Freelancer-Client-Dashboard/actions/workflows/docker.yml)
-[![Frontend CI](https://github.com/Mark-Lch22/Freelancer-Client-Dashboard/actions/workflows/frontend.yml/badge.svg)](https://github.com/Mark-Lch22/Freelancer-Client-Dashboard/actions/workflows/frontend.yml)
 
 ---
 
