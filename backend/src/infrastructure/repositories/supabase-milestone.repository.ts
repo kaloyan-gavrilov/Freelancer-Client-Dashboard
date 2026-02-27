@@ -9,7 +9,8 @@ type MilestoneRow = {
   title: string;
   description: string | null;
   amount: string;
-  order: number;
+  order_index: number;
+  due_date: string;
   status: MilestoneStatus;
   created_at: string;
   updated_at: string;
@@ -22,8 +23,9 @@ function toMilestone(row: MilestoneRow): MilestoneRecord {
     title: row.title,
     description: row.description,
     amount: Number(row.amount),
-    order: row.order,
+    order: row.order_index,
     status: row.status,
+    dueDate: new Date(row.due_date),
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -51,7 +53,7 @@ export class SupabaseMilestoneRepository implements IMilestoneRepository {
     const { data, error } = await this.db
       .select('*')
       .eq('project_id', projectId)
-      .order('order', { ascending: true });
+      .order('order_index', { ascending: true });
 
     if (error || !data) return [];
     return (data as MilestoneRow[]).map(toMilestone);
@@ -66,7 +68,8 @@ export class SupabaseMilestoneRepository implements IMilestoneRepository {
         title: input.title,
         description: input.description,
         amount: input.amount,
-        order: input.order,
+        order_index: input.order,
+        due_date: input.dueDate.toISOString(),
         status: input.status,
       })
       .select('*')

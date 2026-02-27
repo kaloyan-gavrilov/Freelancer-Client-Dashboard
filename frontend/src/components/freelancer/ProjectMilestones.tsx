@@ -11,9 +11,10 @@ function milestoneBadgeVariant(
   status: MilestoneStatus,
 ): 'default' | 'secondary' | 'outline' {
   switch (status) {
-    case 'COMPLETED':
+    case 'APPROVED':
       return 'default';
     case 'IN_PROGRESS':
+    case 'SUBMITTED':
       return 'secondary';
     default:
       return 'outline';
@@ -21,8 +22,8 @@ function milestoneBadgeVariant(
 }
 
 function MilestoneIcon({ status }: { status: MilestoneStatus }): React.ReactElement {
-  if (status === 'COMPLETED') return <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />;
-  if (status === 'IN_PROGRESS')
+  if (status === 'APPROVED') return <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />;
+  if (status === 'IN_PROGRESS' || status === 'SUBMITTED')
     return <Loader2 className="h-4 w-4 text-muted-foreground shrink-0 animate-spin" />;
   return <Circle className="h-4 w-4 text-muted-foreground shrink-0" />;
 }

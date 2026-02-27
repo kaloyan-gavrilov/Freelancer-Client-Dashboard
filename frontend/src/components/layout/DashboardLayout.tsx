@@ -3,7 +3,6 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Briefcase,
   LayoutDashboard,
-  FolderOpen,
   Plus,
   Search,
   FileText,
@@ -27,7 +26,6 @@ interface NavItem {
 
 const CLIENT_NAV: NavItem[] = [
   { to: '/client/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/client/projects', label: 'My Projects', icon: FolderOpen },
   { to: '/client/projects/create', label: 'Create Project', icon: Plus },
 ];
 
@@ -39,7 +37,6 @@ const FREELANCER_NAV: NavItem[] = [
 
 const PAGE_TITLES: Record<string, string> = {
   '/client/dashboard': 'Dashboard',
-  '/client/projects': 'My Projects',
   '/client/projects/create': 'Create Project',
   '/freelancer/dashboard': 'Dashboard',
   '/freelancer/projects': 'Browse Projects',
