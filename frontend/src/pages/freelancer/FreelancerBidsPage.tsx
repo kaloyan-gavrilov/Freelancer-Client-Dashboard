@@ -3,6 +3,7 @@ import { FileText, CalendarDays, DollarSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMyBids } from '@/hooks/useBids';
+import { useProject } from '@/hooks/useProjects';
 import type { Bid, BidStatus } from '@/types/domain';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,7 @@ function statusMeta(status: BidStatus): { label: string; className: string } {
 }
 
 function BidCard({ bid }: { bid: Bid }) {
+  const { data: project } = useProject(bid.projectId);
   const submittedAt = new Date(bid.createdAt).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
@@ -36,8 +38,8 @@ function BidCard({ bid }: { bid: Bid }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium font-mono truncate text-muted-foreground">
-            Project #{bid.projectId.slice(0, 8)}
+          <p className="text-sm font-medium truncate">
+            {project?.title ?? `Project #${bid.projectId.slice(0, 8)}`}
           </p>
           {bid.coverLetter && (
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{bid.coverLetter}</p>
@@ -82,7 +84,7 @@ function BidCardSkeleton() {
 }
 
 export function FreelancerBidsPage(): React.ReactElement {
-  const { data: bids = [], isLoading, isError } = useMyBids();
+  const { data: bids = [], isLoading, isError, error } = useMyBids();
 
   const counts = {
     pending: bids.filter((b) => b.status === 'PENDING').length,
@@ -99,8 +101,9 @@ export function FreelancerBidsPage(): React.ReactElement {
       </div>
 
       {isError && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          Failed to load bids. Please refresh.
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive space-y-1">
+          <p className="font-medium">Failed to load bids.</p>
+          {error instanceof Error && <p className="opacity-80">{error.message}</p>}
         </div>
       )}
 
