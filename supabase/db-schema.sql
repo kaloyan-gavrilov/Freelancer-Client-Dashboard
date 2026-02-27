@@ -191,6 +191,19 @@ CREATE TABLE milestones (
   UNIQUE (project_id, order_index)
 );
 
+-- time_entries: freelancer work logs against a project (optionally a milestone)
+CREATE TABLE time_entries (
+  id            UUID           PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id    UUID           NOT NULL REFERENCES projects(id)    ON DELETE CASCADE,
+  freelancer_id UUID           NOT NULL REFERENCES freelancers(id) ON DELETE CASCADE,
+  milestone_id  UUID                    REFERENCES milestones(id)  ON DELETE SET NULL,
+  hours         DECIMAL(6, 2)  NOT NULL CHECK (hours > 0),
+  description   TEXT           NOT NULL,
+  date          TIMESTAMPTZ    NOT NULL,
+  created_at    TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ    NOT NULL DEFAULT NOW()
+);
+
 -- transactions: financial audit trail for all money movements
 CREATE TABLE transactions (
   id             UUID               PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -322,6 +335,11 @@ CREATE INDEX idx_bids_freelancer_id ON bids(freelancer_id);
 CREATE INDEX idx_bids_status        ON bids(status);
 CREATE INDEX idx_bids_created_at    ON bids(created_at DESC);
 
+-- time_entries
+CREATE INDEX idx_time_entries_project_id    ON time_entries(project_id);
+CREATE INDEX idx_time_entries_freelancer_id ON time_entries(freelancer_id);
+CREATE INDEX idx_time_entries_date          ON time_entries(date DESC);
+
 -- milestones
 CREATE INDEX idx_milestones_project_id ON milestones(project_id);
 CREATE INDEX idx_milestones_status     ON milestones(status);
@@ -435,6 +453,10 @@ CREATE TRIGGER trg_bids_updated_at
 
 CREATE TRIGGER trg_milestones_updated_at
   BEFORE UPDATE ON milestones
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER trg_time_entries_updated_at
+  BEFORE UPDATE ON time_entries
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TRIGGER trg_transactions_updated_at
@@ -619,6 +641,7 @@ ALTER TABLE projects              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_skills        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bids                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE time_entries          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE transactions          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE files                 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE disputes              ENABLE ROW LEVEL SECURITY;
@@ -773,6 +796,32 @@ CREATE POLICY "milestones: freelancer update status"
 
 CREATE POLICY "milestones: admin all"
   ON milestones FOR ALL
+  USING (is_admin());
+
+-- ── TIME_ENTRIES ──────────────────────────────────────────────────────────────
+-- Both project participants can read time entries.
+CREATE POLICY "time_entries: participants read"
+  ON time_entries FOR SELECT
+  USING (
+    is_project_client(project_id)
+    OR is_project_freelancer(project_id)
+  );
+
+-- Freelancers may only log time for projects they are assigned to.
+CREATE POLICY "time_entries: freelancer insert"
+  ON time_entries FOR INSERT
+  WITH CHECK (
+    freelancer_id = auth.uid()
+    AND is_project_freelancer(project_id)
+  );
+
+-- Freelancers can update or delete their own time entries.
+CREATE POLICY "time_entries: freelancer own"
+  ON time_entries FOR ALL
+  USING (freelancer_id = auth.uid());
+
+CREATE POLICY "time_entries: admin all"
+  ON time_entries FOR ALL
   USING (is_admin());
 
 -- ── TRANSACTIONS ──────────────────────────────────────────────────────────────

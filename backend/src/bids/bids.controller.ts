@@ -47,6 +47,19 @@ export class BidsController {
     return this.bidsService.create(projectId, dto, req.user.id);
   }
 
+  @Get('bids/my-bids')
+  @Roles(UserRole.FREELANCER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all bids submitted by the current freelancer (FREELANCER only)' })
+  @ApiResponse({ status: 200, description: 'List of bids' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — FREELANCER role required' })
+  async findMyBids(
+    @Req() req: Request & { user: AuthenticatedUser },
+  ) {
+    return this.bidsService.findByFreelancer(req.user.id);
+  }
+
   @Get('projects/:id/bids')
   @Roles(UserRole.CLIENT)
   @ApiBearerAuth()

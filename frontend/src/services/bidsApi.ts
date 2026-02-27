@@ -1,6 +1,11 @@
 import type { Bid, BidRankBy, CreateBidDTO } from '@/types/bid';
 import { httpClient } from './api';
 
+export async function getMyBids(): Promise<Bid[]> {
+  const { data } = await httpClient.get<Bid[]>('/bids/my-bids');
+  return data;
+}
+
 export async function createBid(projectId: string, dto: CreateBidDTO): Promise<Bid> {
   const { data } = await httpClient.post<Bid>(`/projects/${projectId}/bids`, dto);
   return data;

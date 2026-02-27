@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createBid } from '@/services/bidsApi';
+import { createBid, getMyBids } from '@/services/bidsApi';
 import { httpClient } from '@/services/api';
 import type { Bid, CreateBidPayload } from '@/types/domain';
+
+export function useMyBids() {
+  return useQuery<Bid[]>({
+    queryKey: ['my-bids'],
+    queryFn: getMyBids,
+  });
+}
 
 export function useMyBidForProject(projectId: string, freelancerId: string) {
   return useQuery<Bid[]>({

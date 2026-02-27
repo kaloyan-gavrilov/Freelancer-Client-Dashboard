@@ -11,6 +11,7 @@ import { ClientDashboard } from './pages/ClientDashboard';
 import CreateProjectForm from './components/project/CreateProjectForm';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { BrowseProjectsPage } from './pages/freelancer/BrowseProjectsPage';
+import { FreelancerBidsPage } from './pages/freelancer/FreelancerBidsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -71,6 +72,7 @@ export default function App(): React.ReactNode {
               <Route element={<RoleRoute allowedRole={UserRole.CLIENT} />}>
                 <Route element={<DashboardLayout />}>
                   <Route path="/client/dashboard" element={<ClientDashboard />} />
+                  <Route path="/client/projects" element={<ClientDashboard />} />
                   <Route path="/client/projects/create" element={<CreateProjectForm />} />
                 </Route>
               </Route>
@@ -80,6 +82,7 @@ export default function App(): React.ReactNode {
                 <Route element={<DashboardLayout />}>
                   <Route path="/freelancer/dashboard" element={<FreelancerDashboardPage />} />
                   <Route path="/freelancer/projects" element={<BrowseProjectsPage />} />
+                  <Route path="/freelancer/bids" element={<FreelancerBidsPage />} />
                 </Route>
               </Route>
             </Route>
