@@ -1,5 +1,4 @@
 import { Project } from "../Project";
-import { PendingState } from "../states/PendingState";
 import { ActiveState } from "../states/ActiveState";
 import { InReviewState } from "../states/InReviewState";
 import { CompletedState } from "../states/CompletedState";

@@ -47,6 +47,7 @@ export class MilestonesService {
       description: dto.description ?? null,
       amount: dto.amount,
       order: dto.order,
+      dueDate: project.deadline,
       status: 'PENDING',
     });
   }

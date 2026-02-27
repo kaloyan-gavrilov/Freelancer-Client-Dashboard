@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createBid } from '@/services/bidsApi';
+import { createBid, getMyBids } from '@/services/bidsApi';
 import { httpClient } from '@/services/api';
 import type { Bid, CreateBidPayload } from '@/types/domain';
+
+export function useMyBids() {
+  return useQuery<Bid[]>({
+    queryKey: ['my-bids'],
+    queryFn: getMyBids,
+  });
+}
 
 export function useMyBidForProject(projectId: string, freelancerId: string) {
   return useQuery<Bid[]>({
@@ -18,16 +25,12 @@ export function useMyBidForProject(projectId: string, freelancerId: string) {
 }
 
 /**
- * Track which projects the current freelancer has bid on.
- * Stored locally in query cache — populated on successful bid submission.
+ * Returns the list of project IDs the current freelancer has already bid on,
+ * derived from the real API data so it persists across page refreshes.
  */
-export function useSubmittedBidProjects() {
-  return useQuery<string[]>({
-    queryKey: ['submitted-bid-projects'],
-    queryFn: () => Promise.resolve([]),
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
+export function useSubmittedBidProjects(): { data: string[] } {
+  const { data: myBids = [] } = useMyBids();
+  return { data: myBids.map((bid) => bid.projectId) };
 }
 
 export function useSubmitBid(projectId: string) {
@@ -36,11 +39,7 @@ export function useSubmitBid(projectId: string) {
   return useMutation<Bid, Error, CreateBidPayload>({
     mutationFn: (payload) => createBid(projectId, payload),
     onSuccess: () => {
-      // Mark this project as bid-submitted in the local cache
-      queryClient.setQueryData<string[]>(['submitted-bid-projects'], (prev = []) => {
-        if (prev.includes(projectId)) return prev;
-        return [...prev, projectId];
-      });
+      void queryClient.invalidateQueries({ queryKey: ['my-bids'] });
       void queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });

@@ -17,8 +17,8 @@ export class CreateMilestoneDto {
   @IsPositive()
   amount: number;
 
-  @ApiProperty({ example: 1, description: 'Display order of the milestone' })
+  @ApiProperty({ example: 0, description: 'Display order of the milestone (0-based)' })
   @IsNumber()
-  @Min(1)
+  @Min(0)
   order: number;
 }

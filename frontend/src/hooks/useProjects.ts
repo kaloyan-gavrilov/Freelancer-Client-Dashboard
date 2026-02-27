@@ -23,7 +23,7 @@ export function useCreateProject() {
   const queryClient = useQueryClient();
   return useMutation<Project, Error, CreateProjectDTO>({
     mutationFn: (dto) => createProject({ ...dto, initialStatus: 'OPEN' }),
-    onSuccess: (_data, _vars, _ctx) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['client-projects'] });
     },
   });
@@ -50,7 +50,7 @@ export function useMilestoneReadyMutation() {
 
   return useMutation({
     mutationFn: ({ milestoneId }: { milestoneId: string; projectId: string }) =>
-      updateMilestone(milestoneId, { status: 'COMPLETED' }),
+      updateMilestone(milestoneId, { status: 'SUBMITTED' }),
     onSuccess: (_data, { projectId }) => {
       void queryClient.invalidateQueries({ queryKey: ['milestones', projectId] });
     },

@@ -6,6 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAcceptBid, useRejectBid } from '@/hooks/useBids';
 import type { Bid, BidRankBy } from '@/types/domain';
 
+interface BidWithFreelancer extends Bid {
+  freelancer?: { name?: string; rating?: number };
+  rateType?: string;
+}
+
 interface Props {
   projectId: string;
   userRole: string | null | undefined;
@@ -14,7 +19,7 @@ interface Props {
 
 export function BidList({ projectId, userRole, projectStatus }: Props): React.ReactElement | null {
   const [rankBy, setRankBy] = useState<BidRankBy>('composite');
-  const [bids, setBids] = useState<Bid[] | null>(null);
+  const [bids, setBids] = useState<BidWithFreelancer[] | null>(null);
 
   const acceptBid = useAcceptBid(projectId);
   const rejectBid = useRejectBid(projectId);
@@ -23,7 +28,7 @@ export function BidList({ projectId, userRole, projectStatus }: Props): React.Re
     if (!projectId) return;
     let mounted = true;
     void httpClient
-      .get<Bid[]>(`/projects/${projectId}/bids?rankBy=${rankBy}`)
+      .get<BidWithFreelancer[]>(`/projects/${projectId}/bids?rankBy=${rankBy}`)
       .then((res) => {
         if (!mounted) return;
         setBids(res.data);
@@ -40,7 +45,7 @@ export function BidList({ projectId, userRole, projectStatus }: Props): React.Re
   // Only visible to clients when project is OPEN
   if (userRole !== 'CLIENT' || projectStatus !== 'OPEN') return null;
 
-  const isPending = (acceptBid as any).isPending || (rejectBid as any).isPending;
+  const isPending = acceptBid.isPending || rejectBid.isPending;
 
   async function handleAccept(bidId: string, name?: string) {
     const confirmed = window.confirm(
@@ -102,15 +107,15 @@ export function BidList({ projectId, userRole, projectStatus }: Props): React.Re
 
       <ul className="space-y-3">
         {bids.map((bid) => {
-          const freelancerName = (bid as any).freelancer?.name ?? bid.freelancerId?.slice(0, 8);
-          const freelancerRating = (bid as any).freelancer?.rating;
+          const freelancerName = bid.freelancer?.name ?? bid.freelancerId?.slice(0, 8);
+          const freelancerRating = bid.freelancer?.rating;
           return (
             <li key={bid.id} className="rounded-lg border bg-card p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-0.5">
                   <p className="text-xs text-muted-foreground font-mono">{freelancerName} </p>
                   <div className="flex items-center gap-3 text-sm">
-                    <span className="font-medium">${bid.proposedRate}{' '}{(bid as any).rateType === 'HOURLY' ? '/hr' : ''}</span>
+                    <span className="font-medium">${bid.proposedRate}{' '}{bid.rateType === 'HOURLY' ? '/hr' : ''}</span>
                     <span className="text-muted-foreground">·</span>
                     <span className="text-muted-foreground">{bid.estimatedDurationDays} days</span>
                     {typeof freelancerRating === 'number' && (

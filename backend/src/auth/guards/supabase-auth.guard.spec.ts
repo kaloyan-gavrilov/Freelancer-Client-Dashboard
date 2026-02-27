@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { SupabaseAuthGuard } from './supabase-auth.guard';
 import { SupabaseClientService } from '../../infrastructure/supabase/supabase.client';
 import { UserRole } from '../../domain/user/user-role.enum';

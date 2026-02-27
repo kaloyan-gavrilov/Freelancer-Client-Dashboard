@@ -85,6 +85,8 @@ classDiagram
         +Decimal hours
         +string description
         +Date date
+        +Date createdAt
+        +Date updatedAt
     }
 
     class File {
